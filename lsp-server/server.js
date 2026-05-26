@@ -365,11 +365,12 @@ function handleInlayHints({ textDocument }) {
 
 // tokenTypes legend indices:
 const TK_PENDING    = 0;  // [ ]  pending           → yellow  (function)
-const TK_DONE       = 1;  // [x] [-] done/cancelled → teal    (type)
+const TK_DONE       = 1;  // [x]  done              → teal    (type)
 const TK_COMMENT    = 2;  // // comment lines        → grey    (comment)
 const TK_INPROGRESS = 3;  // [/]  in-progress        → orange  (string)
 const TK_DECORATOR  = 4;  // @tags                   → accent  (decorator)
 const TK_HEADER     = 5;  // section headers          → blue   (keyword)
+const TK_CANCELLED  = 2;  // [-]  cancelled          → grey    (comment) — reuses comment slot
 
 function computeTokens(text) {
   const lines = text.split('\n');
@@ -417,7 +418,8 @@ function computeTokens(text) {
       const bodyRaw    = m[3];
 
       let markerType;
-      if (marker === MARKERS.done || marker === MARKERS.cancelled) markerType = TK_DONE;
+      if (marker === MARKERS.done)            markerType = TK_DONE;
+      else if (marker === MARKERS.cancelled)  markerType = TK_CANCELLED;
       else if (marker === MARKERS.in_progress) markerType = TK_INPROGRESS;
       else markerType = TK_PENDING;
 
