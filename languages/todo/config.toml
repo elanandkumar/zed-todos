@@ -1,0 +1,3 @@
+name           = "Todo"
+path_suffixes  = ["todo"]
+line_comments  = ["// "]

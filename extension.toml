@@ -1,0 +1,11 @@
+id             = "todos"
+name           = "Todos"
+version        = "0.1.0"
+schema_version = 1
+description    = "Task management for .todo files — auto-insert [ ], toggle done/in-progress via code actions"
+authors        = ["Anand Kumar"]
+repository     = "https://github.com/elanandkumar/zed-todos"
+
+[language_servers.todo-ls]
+name      = "Todo Language Server"
+languages = ["Todo"]
