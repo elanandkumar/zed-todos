@@ -15,37 +15,39 @@ impl zed::Extension for TodoExtension {
 
     fn language_server_command(
         &mut self,
-        _language_server_id: &LanguageServerId,
+        language_server_id: &LanguageServerId,
         _worktree: &Worktree,
     ) -> Result<zed::Command> {
-        let server_path = self.server_path()?;
+        let server_path = self.server_path(language_server_id)?;
         Ok(zed::Command {
             command: zed::node_binary_path()?,
-            args: vec![server_path],
+            args: vec![server_path.to_string_lossy().to_string()],
             env: Default::default(),
         })
     }
 }
 
 impl TodoExtension {
-    fn server_path(&mut self) -> Result<String> {
+    fn server_path(&mut self, language_server_id: &LanguageServerId) -> Result<PathBuf> {
         let version = zed::npm_package_latest_version(PACKAGE_NAME)?;
 
-        if self.server_path.as_ref().map_or(true, |p| !p.exists()) {
+        let work_dir = std::env::current_dir().map_err(|e| e.to_string())?;
+        let path = work_dir.join(SERVER_PATH);
+
+        if !path.exists() {
             zed::set_language_server_installation_status(
-                "todo-ls",
+                language_server_id,
                 &zed::LanguageServerInstallationStatus::Downloading,
             );
             zed::npm_install_package(PACKAGE_NAME, &version)?;
         }
 
-        let path = PathBuf::from(SERVER_PATH);
         if !path.exists() {
-            return Err(format!("{SERVER_PATH} not found after install").into());
+            return Err(format!("{} not found after install", path.display()).into());
         }
 
-        self.server_path = Some(path);
-        Ok(SERVER_PATH.to_string())
+        self.server_path = Some(path.clone());
+        Ok(path)
     }
 }
 
